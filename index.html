@@ -19,11 +19,13 @@
   <!-- Optional JavaScript -->
   <script>
     console.log("Version: 1.0.9")
-    var attestationOptions = 'https://fido2.vtcsmarttech.com.vn/webauthn/attestation/options'
-    var attestationResult = 'https://fido2.vtcsmarttech.com.vn/webauthn/attestation/result'
-    var assertionOptions = 'https://fido2.vtcsmarttech.com.vn/webauthn/assertion/options'
-    var assertionResult = 'https://fido2.vtcsmarttech.com.vn/webauthn/assertion/result'
+    // var attestationOptions = 'https://fido2.vtcsmarttech.com.vn/webauthn/attestation/options'
+    // var attestationResult = 'https://fido2.vtcsmarttech.com.vn/webauthn/attestation/result'
+    // var assertionOptions = 'https://fido2.vtcsmarttech.com.vn/webauthn/assertion/options'
+    // var assertionResult = 'https://fido2.vtcsmarttech.com.vn/webauthn/assertion/result'
 
+    var attestationOptions = 'https://test.localhost.ssl:10011/api/webauthn/attestation/options'
+    var attestationResult = 'https://test.localhost.ssl:10011/api/webauthn/attestation/result'
     // Tắt alert
     window.alert = function () { };
 
@@ -56,34 +58,35 @@
     }
 
     function startWebAuthnRegister(username, displayName, callback) {
-      endpoint_attestation(username, displayName, res => {
-        alert(`Attestation Success. Returning Success...`)
-        var successResponse = callback + `?status=${res.status}&message=${res.errorMessage}&body=${JSON.stringify(res)}`
-        window.location.href = successResponse
-        closeWindow()
-      }, err => {
-        alert(`Error: ${err}`)
-        alert(`Attestation Failed. Returning Error...`)
-        var errorResponse = callback + `?status=${err.name}&message=${err.message}`
-        window.location.href = errorResponse
-        closeWindow()
-      })
-    }
+  endpoint_attestation(username, displayName, res => {
+    alert(`Attestation Success. Returning Success...`)
+    var successResponse = callback + `?status=${res.status}&message=${res.errorMessage}&body=${JSON.stringify(res)}`
+    window.location.href = successResponse
+    closeWindow()
+  }, err => {
+    alert(`Error: ${err}`)
+    alert(`Attestation Failed. Returning Error...`)
+    var errorResponse = callback + `?status=${err.name}&message=${err.message}`
+    window.location.href = errorResponse
+    closeWindow()
+  }, callback) // Pass callback parameter to endpoint_attestation
+}
 
-    function startWebAuthnVerify(username, callback) {
-      endpoint_assertion(username, res => {
-        alert(`Assertion Success. Returning Success...`)
-        var successResponse = callback + `?status=${res.status}&message=${res.errorMessage}&body=${JSON.stringify(res)}`
-        window.location.href = successResponse
-        closeWindow()
-      }, err => {
-        alert(`Exception: ${err}`)
-        alert(`Assertion Failed. Returning Error...`)
-        var errorResponse = callback + `?status=${err.name}&message=${err.message}`
-        window.location.href = errorResponse
-        closeWindow()
-      })
-    }
+function startWebAuthnVerify(username, callback) {
+  endpoint_assertion(username, res => {
+    alert(`Assertion Success. Returning Success...`)
+    var successResponse = callback + `?status=${res.status}&message=${res.errorMessage}&body=${JSON.stringify(res)}`
+    window.location.href = successResponse
+    closeWindow()
+  }, err => {
+    alert(`Exception: ${err}`)
+    alert(`Assertion Failed. Returning Error...`)
+    var errorResponse = callback + `?status=${err.name}&message=${err.message}`
+    window.location.href = errorResponse
+    closeWindow()
+  }) // No need to pass callback to endpoint_assertion
+}
+
 
     function closeWindow() {
       setTimeout(() => {

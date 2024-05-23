@@ -14,21 +14,18 @@
 
 <body>
   <div class="container">
+    <!-- Content here -->
   </div>
 
   <!-- Optional JavaScript -->
   <script>
-    console.log("Version: 1.0.9")
-    var attestationOptions = 'https://fido2.vtcsmarttech.com.vn/webauthn/attestation/options'
-    var attestationResult = 'https://fido2.vtcsmarttech.com.vn/webauthn/attestation/result'
-    var assertionOptions = 'https://fido2.vtcsmarttech.com.vn/webauthn/assertion/options'
-    var assertionResult = 'https://fido2.vtcsmarttech.com.vn/webauthn/assertion/result'
+    console.log("Version: 1.0.9");
 
-    // var attestationOptions = 'https://test.localhost.ssl:10011/api/webauthn/attestation/options'
-    // var attestationResult = 'https://test.localhost.ssl:10011/api/webauthn/attestation/result'
-    // var attestationResult = 'https://test.localhost.ssl:10011/api/webauthn/attestation/result'
-    // var attestationResult = 'https://test.localhost.ssl:10011/api/webauthn/attestation/result'
-    // Tắt alert
+    var attestationOptions = 'https://test.localhost.ssl:10011/api/webauthn/attestation/options';
+    var attestationResult = 'https://test.localhost.ssl:10011/api/webauthn/attestation/result';
+    var assertionOptions = 'https://fido2.vtcsmarttech.com.vn/webauthn/assertion/options';
+    var assertionResult = 'https://fido2.vtcsmarttech.com.vn/webauthn/assertion/result';
+
     window.alert = function () { };
 
     window.onload = () => {
@@ -38,19 +35,19 @@
       var callback = getQueryParam('callback');
 
       if (!webauthnJSON.supported()) {
-        alert('This browser is not supported webauthn')
-        closeWindow()
-        return
+        alert('This browser is not supported webauthn');
+        closeWindow();
+        return;
       }
       if (username && callback && (auth === 'attestation' || auth === 'assertion')) {
         if (auth === 'attestation') {
-          startWebAuthnRegister(username, displayName, callback)
+          startWebAuthnRegister(username, displayName, callback);
         } else {
-          startWebAuthnVerify(username, callback)
+          startWebAuthnVerify(username, callback);
         }
       } else {
-        alert('Invalid Request')
-        closeWindow()
+        alert('Invalid Request');
+        closeWindow();
       }
     }
 
@@ -60,149 +57,139 @@
     }
 
     function startWebAuthnRegister(username, displayName, callback) {
-  endpoint_attestation(username, displayName, res => {
-    alert(`Attestation Success. Returning Success...`)
-    var successResponse = callback + `?status=${res.status}&message=${res.errorMessage}&body=${JSON.stringify(res)}`
-    window.location.href = successResponse
-    closeWindow()
-  }, err => {
-    alert(`Error: ${err}`)
-    alert(`Attestation Failed. Returning Error...`)
-    var errorResponse = callback + `?status=${err.name}&message=${err.message}`
-    window.location.href = errorResponse
-    closeWindow()
-  }, callback) // Pass callback parameter to endpoint_attestation
-}
+      endpoint_attestation(username, displayName, res => {
+        alert('Attestation Success. Returning Success...');
+        var successResponse = callback + `?status=${res.status}&message=${res.errorMessage}&body=${encodeURIComponent(JSON.stringify(res))}`;
+        window.location.href = successResponse;
+        closeWindow();
+      }, err => {
+        alert(`Error: ${err}`);
+        alert('Attestation Failed. Returning Error...');
+        var errorResponse = callback + `?status=${err.name}&message=${err.message}`;
+        window.location.href = errorResponse;
+        closeWindow();
+      });
+    }
 
-function startWebAuthnVerify(username, callback) {
-  endpoint_assertion(username, res => {
-    alert(`Assertion Success. Returning Success...`)
-    var successResponse = callback + `?status=${res.status}&message=${res.errorMessage}&body=${JSON.stringify(res)}`
-    window.location.href = successResponse
-    closeWindow()
-  }, err => {
-    alert(`Exception: ${err}`)
-    alert(`Assertion Failed. Returning Error...`)
-    var errorResponse = callback + `?status=${err.name}&message=${err.message}`
-    window.location.href = errorResponse
-    closeWindow()
-  }) // No need to pass callback to endpoint_assertion
-}
-
+    function startWebAuthnVerify(username, callback) {
+      endpoint_assertion(username, res => {
+        alert('Assertion Success. Returning Success...');
+        var successResponse = callback + `?status=${res.status}&message=${res.errorMessage}&body=${encodeURIComponent(JSON.stringify(res))}`;
+        window.location.href = successResponse;
+        closeWindow();
+      }, err => {
+        alert(`Exception: ${err}`);
+        alert('Assertion Failed. Returning Error...');
+        var errorResponse = callback + `?status=${err.name}&message=${err.message}`;
+        window.location.href = errorResponse;
+        closeWindow();
+      });
+    }
 
     function closeWindow() {
       setTimeout(() => {
         window.close();
-      }, 10000)
+      }, 10000);
     }
 
-    function endpoint_attestation(username, displayName, onsuccess, onerror, callback) {
-      alert('Sending AttestationRequest to FIDO2 Server...')
+    function endpoint_attestation(username, displayName, onsuccess, onerror) {
+      alert('Sending AttestationRequest to FIDO2 Server...');
       fetch(attestationOptions, {
         method: 'post',
         headers: {
-          "Content-Type": "application/json"
+          'Content-Type': 'application/json'
         },
-        body: JSON.stringify({
-          "username": username,
-          "displayName": displayName
-        })
+        body: JSON.stringify({ username, displayName })
       }).then(res => res.json())
         .then(res => {
           if (res.status !== 'ok') {
             onerror(Error(res.errorMessage));
             return;
           }
-          alert('Received AttestationOptions from FIDO2 Server!')
-          alert('Creating Credential using WebAuthn...')
-          webauthnJSON.create({
-            "publicKey": res
-          }).then(response => {
-            alert('Generating AttestationResult...')
-            alert('Responding AttestationResult to FIDO2 Server...')
-            fetch(attestationResult, {
-              method: 'post',
-              headers: {
-                "Content-Type": "application/json"
-              },
-              body: JSON.stringify(response)
+          alert('Received AttestationOptions from FIDO2 Server!');
+          alert('Creating Credential using WebAuthn...');
+          webauthnJSON.create({ publicKey: res })
+            .then(response => {
+              alert('Generating AttestationResult...');
+              alert('Responding AttestationResult to FIDO2 Server...');
+              fetch(attestationResult, {
+                method: 'post',
+                headers: {
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(response)
+              })
+                .then(res => res.json())
+                .then(res => {
+                  onsuccess(res);
+                })
+                .catch(err => {
+                  onerror(err);
+                });
             })
-              .then(res => res.json())
-              .then(res => {
-                onsuccess(res);
-              })
-              .catch(err => {
-                onerror(err);
-              })
-          }).catch(err => {
-            var errorMessage = `WebAuthnAttestationFailed: ${err?.name}: ${err?.message}`
-            onerror(Error(errorMessage));
-          });
-        }).catch(err => {
-          onerror(err);
+            .catch(err => {
+              var errorMessage = `WebAuthnAttestationFailed: ${err?.name}: ${err?.message}`;
+              onerror(Error(errorMessage));
+            });
         })
+        .catch(err => {
+          onerror(err);
+        });
     }
 
     function endpoint_assertion(username, onsuccess, onerror) {
-      alert('Sending AssertionRequest to FIDO2 Server...')
-      var body = {
-        "username": username
-      }
-
+      alert('Sending AssertionRequest to FIDO2 Server...');
       fetch(assertionOptions, {
         method: 'post',
         headers: {
-          "Content-Type": "application/json"
+          'Content-Type': 'application/json'
         },
-        body: JSON.stringify(body)
+        body: JSON.stringify({ username })
       }).then(res => res.json())
         .then(res => {
           if (res.status !== 'ok') {
             onerror(Error(res.errorMessage));
             return;
           }
-          alert('Received AssertionOptions from FIDO2 Server!')
-          alert('Getting Credential using WebAuthn...')
-          webauthnJSON.get({
-            "publicKey": res
-          }).then(response => {
-            alert('Generating AssertionResult...')
-            alert('Responding AssertionResult to FIDO2 Server...')
-            fetch(assertionResult, {
-              method: 'post',
-              headers: {
-                "Content-Type": "application/json"
-              },
-              body: JSON.stringify(response)
-            }).then(res => res.json())
-              .then(res => {
-                onsuccess(res);
-              })
-              .catch(err => {
-                onerror(err);
-              })
-          }).catch(err => {
-            var errorMessage = `WebAuthnAssertionFailed: ${err?.name}: ${err?.message}`
-            onerror(Error(errorMessage));
-          });
-        }).catch(err => {
-          onerror(err);
+          alert('Received AssertionOptions from FIDO2 Server!');
+          alert('Getting Credential using WebAuthn...');
+          webauthnJSON.get({ publicKey: res })
+            .then(response => {
+              alert('Generating AssertionResult...');
+              alert('Responding AssertionResult to FIDO2 Server...');
+              fetch(assertionResult, {
+                method: 'post',
+                headers: {
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(response)
+              }).then(res => res.json())
+                .then(res => {
+                  onsuccess(res);
+                })
+                .catch(err => {
+                  onerror(err);
+                });
+            })
+            .catch(err => {
+              var errorMessage = `WebAuthnAssertionFailed: ${err?.name}: ${err?.message}`;
+              onerror(Error(errorMessage));
+            });
         })
+        .catch(err => {
+          onerror(err);
+        });
     }
   </script>
-  <script
-    src="https://cdn.jsdelivr.net/npm/@github/webauthn-json/dist/browser-global/webauthn-json.browser-global.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@github/webauthn-json/dist/browser-global/webauthn-json.browser-global.min.js"></script>
 
   <!-- jQuery first, then Popper.js, then Bootstrap JS -->
   <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
-    integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
-    crossorigin="anonymous"></script>
+    integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
-    integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
-    crossorigin="anonymous"></script>
+    integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
-    integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
-    crossorigin="anonymous"></script>
+    integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
 </body>
 
 </html>

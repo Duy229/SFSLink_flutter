@@ -23,11 +23,15 @@
 
     var attestationOptions = 'https://test.localhost.ssl:10011/api/webauthn/attestation/options';
     var attestationResult = 'https://test.localhost.ssl:10011/api/webauthn/attestation/result';
-    var assertionOptions = 'https://fido2.vtcsmarttech.com.vn/webauthn/assertion/options';
-    var assertionResult = 'https://fido2.vtcsmarttech.com.vn/webauthn/assertion/result';
+    
+    // var assertionOptions = 'https://fido2.vtcsmarttech.com.vn/webauthn/assertion/options';
+    // var assertionResult = 'https://fido2.vtcsmarttech.com.vn/webauthn/assertion/result';
+
+    var assertionOptions = 'https://test.localhost.ssl:10011/api/webauthn/assertion/options';
+    var assertionResult = 'https://test.localhost.ssl:10011/api/webauthn/assertion/result';
 
     window.alert = function () { };
-
+nb
     window.onload = () => {
       var username = getQueryParam('username');
       var displayName = getQueryParam('displayName');
